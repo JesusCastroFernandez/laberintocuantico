@@ -1,0 +1,43 @@
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, Aer, execute
+
+# Definimos la función para construir el laberinto cuántico
+def make_maze_qc(qc, n):
+    # Comenzamos con una barrera para separar los componentes cuánticos y clásicos
+    qc.barrier()
+    
+    # Inicializamos el registro cuántico con n qubits
+    q = QuantumRegister(n)
+    
+    # Añadimos las puertas necesarias para construir el laberinto cuántico
+    qc.h(q[0])
+    qc.cx(q[0], q[1])
+    qc.cx(q[0], q[2])
+    qc.cx(q[1], q[3])
+    qc.cx(q[1], q[4])
+    qc.cx(q[2], q[4])
+    qc.cx(q[3], q[5])
+    qc.cx(q[4], q[5])
+    
+    # Añadimos una barrera para separar las operaciones de medición
+    qc.barrier()
+    
+    # Medimos los qubits para obtener la salida
+    c = ClassicalRegister(n)
+    qc.add_register(c)
+    qc.measure(q, c)
+    
+    return qc
+
+# Creamos un circuito cuántico de 6 qubits y 6 bits clásicos
+qc = QuantumCircuit(6, 6)
+
+# Creamos el laberinto cuántico
+make_maze_qc(qc, 6)
+
+# Ejecutamos el circuito y obtenemos los resultados
+backend = Aer.get_backend('qasm_simulator')
+job = execute(qc, backend, shots=1024)
+result = job.result()
+
+# Imprimimos los resultados
+print(result.get_counts())
